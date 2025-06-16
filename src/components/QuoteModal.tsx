@@ -38,30 +38,9 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
 
 Aguardo retorno. Obrigado!`;
 
-    // Enviar para WhatsApp
+    // Redirecionar diretamente para WhatsApp
     const whatsappUrl = `https://wa.me/5511996547241?text=${encodeURIComponent(mensagem)}`;
-    
-    // Enviar email (usando mailto)
-    const emailSubject = 'Nova Cotação - Eliete Seguros';
-    const emailBody = `Nova cotação recebida através do site:
-
-Nome: ${formData.nome}
-WhatsApp: ${formData.whatsapp}
-Cidade: ${formData.cidade}
-Tipo de Plano: ${formData.tipoPlano}
-Quantidade de Pessoas: ${formData.quantidadePessoas}
-Idades: ${formData.idades}
-Plano Atual: ${formData.planoAtual || 'Não possui'}
-Odontológico: ${formData.odontologico}
-Melhor Horário: ${formData.horarioContato}`;
-    
-    const emailUrl = `mailto:eliete.seguros@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-    
-    // Abrir email e WhatsApp
-    window.open(emailUrl, '_blank');
-    setTimeout(() => {
-      window.open(whatsappUrl, '_blank');
-    }, 1000);
+    window.open(whatsappUrl, '_blank');
     
     onClose();
   };
