@@ -6,6 +6,13 @@ interface QuoteModalProps {
   onClose: () => void;
 }
 
+// Declare fbq function for TypeScript
+declare global {
+  interface Window {
+    fbq: (action: string, event: string, data?: any) => void;
+  }
+}
+
 export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
   const [formData, setFormData] = useState({
     nome: '',
@@ -21,6 +28,16 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    
+    // Track Facebook Pixel Lead event
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'Lead', {
+        content_name: 'Cotação Plano de Saúde',
+        content_category: 'Seguros',
+        value: 1,
+        currency: 'BRL'
+      });
+    }
     
     // Preparar mensagem para WhatsApp
     const mensagem = `Olá! Gostaria de solicitar uma cotação de plano de saúde:
