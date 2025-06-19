@@ -26,7 +26,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
     horarioContato: 'Manhã'
   });
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
     // Track Facebook Pixel Lead event
@@ -39,8 +39,30 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
       });
     }
     
-    // Preparar mensagem para WhatsApp
-    const mensagem = `Olá! Gostaria de solicitar uma cotação de plano de saúde:
+    // Send form data to Web3Forms
+    const formDataToSend = new FormData();
+    formDataToSend.append('access_key', '1e4169c4-b730-4f75-8c43-92bb0c19f370');
+    formDataToSend.append('subject', 'Nova Cotação de Plano de Saúde - Eliete Seguros');
+    formDataToSend.append('from_name', 'Eliete Seguros - Landing Page');
+    formDataToSend.append('nome', formData.nome);
+    formDataToSend.append('whatsapp', formData.whatsapp);
+    formDataToSend.append('cidade', formData.cidade);
+    formDataToSend.append('tipoPlano', formData.tipoPlano);
+    formDataToSend.append('quantidadePessoas', formData.quantidadePessoas);
+    formDataToSend.append('idades', formData.idades);
+    formDataToSend.append('planoAtual', formData.planoAtual || 'Não possui');
+    formDataToSend.append('odontologico', formData.odontologico);
+    formDataToSend.append('horarioContato', formData.horarioContato);
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: formDataToSend
+      });
+
+      if (response.ok) {
+        // Preparar mensagem para WhatsApp
+        const mensagem = `Olá! Gostaria de solicitar uma cotação de plano de saúde:
 
 📋 *Dados da Cotação:*
 👤 Nome: ${formData.nome}
@@ -55,11 +77,35 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
 
 Aguardo retorno. Obrigado!`;
 
-    // Redirecionar diretamente para WhatsApp
-    const whatsappUrl = `https://wa.me/5511996547241?text=${encodeURIComponent(mensagem)}`;
-    window.open(whatsappUrl, '_blank');
-    
-    onClose();
+        // Redirecionar para WhatsApp
+        const whatsappUrl = `https://wa.me/5511996547241?text=${encodeURIComponent(mensagem)}`;
+        window.open(whatsappUrl, '_blank');
+        
+        onClose();
+      }
+    } catch (error) {
+      console.error('Erro ao enviar formulário:', error);
+      // Mesmo com erro no email, redireciona para WhatsApp
+      const mensagem = `Olá! Gostaria de solicitar uma cotação de plano de saúde:
+
+📋 *Dados da Cotação:*
+👤 Nome: ${formData.nome}
+📱 WhatsApp: ${formData.whatsapp}
+🏙️ Cidade: ${formData.cidade}
+📋 Tipo de Plano: ${formData.tipoPlano}
+👥 Quantidade de Pessoas: ${formData.quantidadePessoas}
+🎂 Idades: ${formData.idades}
+🏥 Plano Atual: ${formData.planoAtual || 'Não possui'}
+🦷 Odontológico: ${formData.odontologico}
+⏰ Melhor Horário: ${formData.horarioContato}
+
+Aguardo retorno. Obrigado!`;
+
+      const whatsappUrl = `https://wa.me/5511996547241?text=${encodeURIComponent(mensagem)}`;
+      window.open(whatsappUrl, '_blank');
+      
+      onClose();
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
